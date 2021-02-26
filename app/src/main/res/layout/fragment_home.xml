@@ -25,6 +25,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="40dp"
                 android:textSize="30sp"
+                android:textColor="@color/black"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, qu"/>
 
 
@@ -51,6 +52,14 @@
             android:layout_gravity="center|right"
             android:layout_marginRight="20dp"
             android:text="Favourite" />
+
+        <Button
+            android:id="@+id/btn_restart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="220dp"
+            android:text="DO NOT PRESS" />
 
     </FrameLayout>
 </layout>

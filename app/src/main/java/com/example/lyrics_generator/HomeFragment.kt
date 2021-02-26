@@ -8,13 +8,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.example.lyrics_generator.database.LyricsDB
+import com.example.lyrics_generator.database.LyricsDao
 import com.example.lyrics_generator.databinding.FragmentHomeBinding
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.lang.NullPointerException
+import kotlin.random.Random
 
 
 class HomeFragment : Fragment() {
-    private val lyricsList = arrayListOf<String>("Hello, it's me", "I was wondering if after all these years you'd like to meet", "To go over everything","Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, qu")
+    private lateinit var lyricsDao: LyricsDao
     private lateinit var binding: FragmentHomeBinding
-    private var lyricsListCounter: Int = 0
     // for graphical declarations, gets called after oncreate activity
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -22,26 +28,38 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(layoutInflater)
+        lyricsDao = LyricsDB.getInstance(requireActivity()).lyricsDao
         binding.apply {
-            currentLyrics.text = lyricsList[0]
+            GlobalScope.launch {
+                displayNextLyrics()
+            }
             currentLyrics.movementMethod = ScrollingMovementMethod()
+
             btnRandom.setOnClickListener {
                 displayNextLyrics()
             }
+
+            btnRestart.setOnClickListener {
+                GlobalScope.launch {
+                    lyricsDao.deleteAllLyrics()
+                    activity?.finish()
+                }
+            }
+
+
 
         }
         return binding.root
     }
 
-    fun displayNextLyrics() {
-        binding.apply {
-            if (lyricsListCounter == lyricsList.size-1) {
-                currentLyrics.text = lyricsList[0]
-                lyricsListCounter = 0
+    private fun displayNextLyrics() {
+        GlobalScope.launch {
+            val randomNum = Random.nextLong(1,MAX+1.toLong())
+            try {
+                binding.currentLyrics.text = lyricsDao.getSingleLyrics(randomNum).lyrics
             }
-            else {
-                currentLyrics.text = lyricsList[lyricsListCounter+1]
-                lyricsListCounter+=1
+            catch (e: NullPointerException) {
+                displayNextLyrics()
             }
         }
     }
