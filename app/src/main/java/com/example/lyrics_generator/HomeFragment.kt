@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.example.lyrics_generator.database.LyricsDB
 import com.example.lyrics_generator.database.LyricsDao
 import com.example.lyrics_generator.databinding.FragmentHomeBinding
@@ -19,7 +20,6 @@ import kotlin.random.Random
 
 
 class HomeFragment : Fragment() {
-    private lateinit var lyricsDao: LyricsDao
     private lateinit var binding: FragmentHomeBinding
     // for graphical declarations, gets called after oncreate activity
     override fun onCreateView(
@@ -28,16 +28,16 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(layoutInflater)
-        lyricsDao = LyricsDB.getInstance(requireActivity()).lyricsDao
-        binding.apply {
-            GlobalScope.launch {
-                displayNextLyrics()
-            }
-            currentLyrics.movementMethod = ScrollingMovementMethod()
+        // set lifecycleowner for livedata to define scope of livedata object
+        binding.lifecycleOwner = this
 
-            btnRandom.setOnClickListener {
-                displayNextLyrics()
-            }
+        val lyricsDao = LyricsDB.getInstance(requireActivity()).lyricsDao
+        val viewModelFactory = HomeFragmentViewModelFactory(lyricsDao)
+        // let activity be viewmodel owner
+        val viewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(HomeFragmentViewModel::class.java)
+        binding.apply {
+            homeFragmentViewModel = viewModel
+            currentLyrics.movementMethod = ScrollingMovementMethod()
 
             btnRestart.setOnClickListener {
                 GlobalScope.launch {
@@ -46,23 +46,12 @@ class HomeFragment : Fragment() {
                 }
             }
 
-
-
         }
         return binding.root
     }
 
-    private fun displayNextLyrics() {
-        GlobalScope.launch {
-            val randomNum = Random.nextLong(1,MAX+1.toLong())
-            try {
-                binding.currentLyrics.text = lyricsDao.getSingleLyrics(randomNum).lyrics
-            }
-            catch (e: NullPointerException) {
-                displayNextLyrics()
-            }
-        }
-    }
+
+
 
 
 
