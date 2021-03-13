@@ -11,4 +11,6 @@ data class Lyrics (
         @ColumnInfo (name = "lyrics")
         val lyrics: String,
         @ColumnInfo (name = "artiste")
-        val artiste: String)
+        val artiste: String,
+        @ColumnInfo (name = "isFavourite")
+        var isFavourite: Boolean = false)

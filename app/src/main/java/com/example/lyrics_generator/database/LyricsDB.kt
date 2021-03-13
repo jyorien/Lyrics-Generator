@@ -12,7 +12,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.util.concurrent.Executors
 
-@Database (entities = [Lyrics::class], version = 1, exportSchema = false)
+@Database (entities = [Lyrics::class], version = 3, exportSchema = false)
 abstract class LyricsDB: RoomDatabase() {
     abstract val lyricsDao: LyricsDao
 
