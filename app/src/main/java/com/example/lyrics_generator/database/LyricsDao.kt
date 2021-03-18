@@ -30,4 +30,5 @@ interface LyricsDao {
 
     @Query(value = "SELECT * FROM lyrics_table  WHERE isFavourite = 1")
     fun getFavourites(): List<Lyrics>
+
 }
