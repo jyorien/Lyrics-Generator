@@ -20,10 +20,7 @@ class HomeFragmentViewModel(val database: LyricsDao): ViewModel() {
             get() = _favStateString
 
     private lateinit var lyricsObject: Lyrics
-
-    private val _favState = MutableLiveData<Boolean>()
-    val favState: LiveData<Boolean>
-        get() = _favState
+    private var favState by Delegates.notNull<Boolean>()
 
     init {
         displayNextLyrics()
@@ -35,14 +32,12 @@ class HomeFragmentViewModel(val database: LyricsDao): ViewModel() {
         // launch coroutine in viewModelScope so that it cancels with viewmodel
         viewModelScope.launch {
             lateinit var newLyrics: String
-            var newState by Delegates.notNull<Boolean>()
             withContext(Dispatchers.IO) {
                 // call database from BACKGROUND THREAD
                 if (database.checkDB() > 0) {
                     lyricsObject = database.getSingleLyrics(randomNum)
                     newLyrics = lyricsObject.lyrics
-                    newState = database.getSingleLyrics(lyricsObject.lyricsId).isFavourite
-
+                    favState = database.getSingleLyrics(lyricsObject.lyricsId).isFavourite
                 }
                 else
                     displayNextLyrics()
@@ -51,28 +46,27 @@ class HomeFragmentViewModel(val database: LyricsDao): ViewModel() {
             withContext(Dispatchers.Main) {
                 // update UI on MAIN THREAD
                 _lyrics.value = newLyrics
-                _favState.value = newState
-                setFavString(_favState.value!!)
+                setFavString(favState)
             }
         }
     }
 
     fun favourite() {
         viewModelScope.launch {
-            var newState by Delegates.notNull<Boolean>()
             withContext(Dispatchers.IO) {
                 if (lyricsObject.isFavourite) {
                     database.deleteFavourite(lyricsObject.lyricsId)
+                    lyricsObject.isFavourite = false
                 }
                 else {
                     database.addFavourite(lyricsObject.lyricsId)
+                    lyricsObject.isFavourite = true
                 }
-                newState = database.getSingleLyrics(lyricsObject.lyricsId).isFavourite
 
+                favState = database.getSingleLyrics(lyricsObject.lyricsId).isFavourite
             }
             withContext(Dispatchers.Main) {
-                _favState.value = newState
-                setFavString(_favState.value!!)
+                setFavString(favState)
             }
         }
 

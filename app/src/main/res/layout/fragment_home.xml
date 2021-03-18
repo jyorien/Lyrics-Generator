@@ -59,7 +59,7 @@
             android:layout_gravity="center|right"
             android:onClick="@{() -> HomeFragmentViewModel.favourite()}"
             android:layout_marginRight="20dp"
-             />
+            android:text="@{HomeFragmentViewModel.favStateString}" />
 
         <Button
             android:id="@+id/btn_restart"
